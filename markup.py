@@ -29,6 +29,3 @@ ReadyMenu = InlineKeyboardMarkup(
     ]
 )
 
-str = "btn:ReadyMenu:NotDone"
-str1 = str.split(':')[2]
-print(str1)

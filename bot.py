@@ -14,11 +14,8 @@ from aiogram.types import CallbackQuery
 from dotenv import load_dotenv
 
 import os
-import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'adminsite.settings')
 
-django.setup()
 
 
 load_dotenv()
@@ -111,4 +108,6 @@ async def user_answer(call: CallbackQuery):
     answ = call.data.split(':')[2]
     mess = "Пользователь с Id" + call.message.chat.id +  " дал ответ " + answ
     await bot.send_message(ADMIN, mess)
-    
+
+if __name__ == '__main__':
+    executor.start_polling(dp, skip_updates=False)
