@@ -40,7 +40,7 @@ def get_names():
     
 
 
-def new_task(user_id, task_text, task_date, task_answer_time):
+def new_task(user_id, task_text, task_answer_time):
     db = sqlite3.connect("reminder.db")
     sql = db.cursor()
 
@@ -53,26 +53,23 @@ def new_task(user_id, task_text, task_date, task_answer_time):
         user_id INTEGER,
         text TEXT,
         date DATE,
-        answer_time TIME
+        answer_time TIME,
+        complete TEXT
         )""")
     db.commit()
 
-    current_date = datetime.datetime.now().date()
-    current_time = datetime.datetime.now().time()
+    task_date = datetime.datetime.now()
+    us_name, us_id = user_id.split('-')
 
-    if task_date < current_date or (task_date == current_date and task_answer_time < current_time):
-
-        return "Задача просрочена"
-
-    check_user = sql.execute("SELECT * FROM users WHERE tg_id = ?", (user_id.split('-')[1],)).fetchone()
+    check_user = sql.execute("SELECT * FROM users WHERE tg_id = ?", (us_id,)).fetchone()
     if not check_user:
         name, id = user_id.split('-')
         new_user(name, id)
 
     user_id = check_user[1]
 
-    sql.execute("INSERT INTO tasks VALUES (?, ?, ?, ?)", (user_id.split('-')[1], task_text, task_date, task_answer_time))
+    sql.execute("INSERT INTO tasks VALUES (?, ?, ?, ?, ?)", (us_id, task_text, task_date, task_answer_time, 'Выдана'))
     db.commit()
     db.close()
 
-    return "Задача добавлена в базу данных"
+    return us_id, task_text, task_date, task_answer_time

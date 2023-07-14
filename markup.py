@@ -18,3 +18,13 @@ def users_markup(names_list):
                 name_id=name_id)
         ))
     return UsersMenu
+
+ReadyMenu = InlineKeyboardMarkup(
+    row_width=2,
+    inline_keyboard=[
+        [InlineKeyboardButton(text='Выполнено', 
+                              callback_data="btn:ReadyMenu:Completed")],
+        [InlineKeyboardButton(text='Не сделано', 
+                              callback_data="btn:ReadyMenu:NotDone")],
+    ]
+)
