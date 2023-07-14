@@ -25,7 +25,7 @@ load_dotenv()
 TOKEN = os.getenv("TOKEN")
 
 
-ADMINS = os.getenv("ADMIN")
+ADMIN = os.getenv("ADMIN")
 bot = Bot(TOKEN, parse_mode="HTML")
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
@@ -47,7 +47,7 @@ async def command_start(message: types.Message):
 
 @dp.message_handler(commands=['admin'])
 async def command_admin(message: types.Message):
-    if message.chat.id in ADMINS:
+    if message.chat.id == ADMIN:
         names_list = db.get_names()
         await bot.send_message(message.from_user.id, 'Выберете имя и id пользователя', reply_markup=nav.users_markup(names_list))
     else:
@@ -100,3 +100,15 @@ async def add_user_text(message: types.Message, state: FSMContext):
     mess = "Вам выдана задача\n"+ task_text + "\nВремя выполнения: " + task_answer_time
     await bot.send_message(us_id, mess, nav.ReadyMenu)
     await state.finish()
+
+@dp.callback_query_handler(text_contains="ReadyMenu")
+async def user_answer(call: CallbackQuery):
+    await bot.edit_message_reply_markup(
+        chat_id=call.from_user.id,
+        message_id=call.message.message_id,
+        reply_markup=None
+    )
+    answ = call.data.split(':')[2]
+    mess = "Пользователь с Id" + call.message.chat.id +  " дал ответ " + answ
+    await bot.send_message(ADMIN, mess)
+    

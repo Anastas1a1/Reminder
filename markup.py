@@ -23,8 +23,12 @@ ReadyMenu = InlineKeyboardMarkup(
     row_width=2,
     inline_keyboard=[
         [InlineKeyboardButton(text='Выполнено', 
-                              callback_data="btn:ReadyMenu:Completed")],
+                              callback_data="btn:ReadyMenu:Выполнено")],
         [InlineKeyboardButton(text='Не сделано', 
-                              callback_data="btn:ReadyMenu:NotDone")],
+                              callback_data="btn:ReadyMenu:Не сделано")],
     ]
 )
+
+str = "btn:ReadyMenu:NotDone"
+str1 = str.split(':')[2]
+print(str1)
