@@ -10,12 +10,10 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, ParseMode
 from dotenv import load_dotenv
 
 import os
-
-
 
 
 load_dotenv()
@@ -44,11 +42,15 @@ async def command_start(message: types.Message):
 
 @dp.message_handler(commands=['admin'])
 async def command_admin(message: types.Message):
-    if message.chat.id == ADMIN:
+    print(message.chat.id)
+    print(ADMIN)
+    if str(message.chat.id) == ADMIN:
         names_list = db.get_names()
         await bot.send_message(message.from_user.id, 'Выберете имя и id пользователя', reply_markup=nav.users_markup(names_list))
+        await Form.user_id.set()
+
     else:
-        await bot.send_message(message.chat.id, 'У вас нет доступа.')
+        await bot.send_message(message.chat.id, 'У вас нет доступа')
 
 
 @dp.callback_query_handler(UsersCallback.filter(space="ChoiceUser"), state=Form.user_id)
@@ -92,11 +94,13 @@ async def add_user_text(message: types.Message, state: FSMContext):
 async def add_user_text(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['answer_time'] = message.text
-        us_id, task_text, task_date, task_answer_time = db.new_task(data['user_id'], data['text'], data['answer_time'])
+        us_id, task_text, task_date, task_answer_time = db.new_task(
+            data['user_id'], data['text'], data['answer_time'])
     await bot.send_message(message.chat.id, "Задача добавлена в базу данных")
-    mess = "Вам выдана задача\n"+ task_text + "\nВремя выполнения: " + task_answer_time
-    await bot.send_message(us_id, mess, nav.ReadyMenu)
+    mess = f"Вам выдана задача\n{task_text}\nВремя выполнения: {task_answer_time}"
+    await bot.send_message(us_id, mess, reply_markup=nav.ReadyMenu)
     await state.finish()
+
 
 @dp.callback_query_handler(text_contains="ReadyMenu")
 async def user_answer(call: CallbackQuery):
@@ -106,8 +110,9 @@ async def user_answer(call: CallbackQuery):
         reply_markup=None
     )
     answ = call.data.split(':')[2]
-    mess = "Пользователь с Id" + call.message.chat.id +  " дал ответ " + answ
+    mess = f"Пользователь с Id {call.message.chat.id} дал ответ {answ}"
     await bot.send_message(ADMIN, mess)
+
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=False)
